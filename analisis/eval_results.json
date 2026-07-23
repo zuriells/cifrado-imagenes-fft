@@ -1,0 +1,66 @@
+{
+  "psnr_correct": Infinity,
+  "mse_correct": 0.0,
+  "psnr_wrong_password": 6.754778971201042,
+  "mse_wrong_password": 13727.848059795228,
+  "entropy_original": 7.651235521184412,
+  "entropy_original_channels": [
+    7.736032121900111,
+    7.6683798403315,
+    7.549294601321624
+  ],
+  "entropy_encrypted": 6.771475058688542,
+  "entropy_encrypted_channels": [
+    6.688746845969222,
+    6.708731450032646,
+    6.916946880063756
+  ],
+  "noise_attack": {
+    "bajo": {
+      "sigma_fraction": 0.0005,
+      "sigma_abs": 32.7675,
+      "psnr": 45.90414268889325,
+      "mse": 1.669806287355477
+    },
+    "medio": {
+      "sigma_fraction": 0.0025,
+      "sigma_abs": 163.8375,
+      "psnr": 32.82674843507769,
+      "mse": 33.91606956407821
+    },
+    "alto": {
+      "sigma_fraction": 0.005,
+      "sigma_abs": 327.675,
+      "psnr": 25.37920495347869,
+      "mse": 188.43425958185486
+    }
+  },
+  "resize_down": {
+    "1": {
+      "height": 40,
+      "width": 30
+    },
+    "5": {
+      "height": 202,
+      "width": 151
+    },
+    "10": {
+      "height": 403,
+      "width": 302
+    }
+  },
+  "resize_up": {
+    "1": {
+      "height": 4072,
+      "width": 3054
+    },
+    "5": {
+      "height": 4234,
+      "width": 3175
+    },
+    "10": {
+      "height": 4435,
+      "width": 3326
+    }
+  }
+}
