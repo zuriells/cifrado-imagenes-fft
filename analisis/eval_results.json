@@ -1,66 +1,81 @@
 {
   "psnr_correct": Infinity,
   "mse_correct": 0.0,
-  "psnr_wrong_password": 6.754778971201042,
-  "mse_wrong_password": 13727.848059795228,
+  "exact_recovery": true,
   "entropy_original": 7.651235521184412,
   "entropy_original_channels": [
     7.736032121900111,
     7.6683798403315,
     7.549294601321624
   ],
-  "entropy_encrypted": 6.771475058688542,
+  "entropy_encrypted": 7.999985737986264,
   "entropy_encrypted_channels": [
-    6.688746845969222,
-    6.708731450032646,
-    6.916946880063756
+    7.999987640788277,
+    7.99998697553802,
+    7.999982597632493
   ],
-  "noise_attack": {
-    "bajo": {
-      "sigma_fraction": 0.0005,
-      "sigma_abs": 32.7675,
-      "psnr": 45.90414268889325,
-      "mse": 1.669806287355477
+  "diffusion": {
+    "npcr": 99.60916175883933,
+    "npcr_ideal": 99.6094,
+    "uaci": 33.462467023417744,
+    "uaci_ideal": 33.4635,
+    "key_sensitivity_percent": 99.60820080668584
+  },
+  "authentication": {
+    "wrong_password": "rechazado",
+    "gaussian_noise": {
+      "bajo": {
+        "sigma_fraction": 0.0005,
+        "sigma_abs": 32.7675,
+        "outcome": "rechazado"
+      },
+      "medio": {
+        "sigma_fraction": 0.0025,
+        "sigma_abs": 163.8375,
+        "outcome": "rechazado"
+      },
+      "alto": {
+        "sigma_fraction": 0.005,
+        "sigma_abs": 327.675,
+        "outcome": "rechazado"
+      }
     },
-    "medio": {
-      "sigma_fraction": 0.0025,
-      "sigma_abs": 163.8375,
-      "psnr": 32.82674843507769,
-      "mse": 33.91606956407821
-    },
-    "alto": {
-      "sigma_fraction": 0.005,
-      "sigma_abs": 327.675,
-      "psnr": 25.37920495347869,
-      "mse": 188.43425958185486
+    "resize": {
+      "down": {
+        "1": {
+          "height": 40,
+          "width": 30,
+          "outcome": "rechazado"
+        },
+        "5": {
+          "height": 202,
+          "width": 151,
+          "outcome": "rechazado"
+        },
+        "10": {
+          "height": 403,
+          "width": 302,
+          "outcome": "rechazado"
+        }
+      },
+      "up": {
+        "1": {
+          "height": 4072,
+          "width": 3054,
+          "outcome": "rechazado"
+        },
+        "5": {
+          "height": 4234,
+          "width": 3175,
+          "outcome": "rechazado"
+        },
+        "10": {
+          "height": 4435,
+          "width": 3326,
+          "outcome": "rechazado"
+        }
+      }
     }
   },
-  "resize_down": {
-    "1": {
-      "height": 40,
-      "width": 30
-    },
-    "5": {
-      "height": 202,
-      "width": 151
-    },
-    "10": {
-      "height": 403,
-      "width": 302
-    }
-  },
-  "resize_up": {
-    "1": {
-      "height": 4072,
-      "width": 3054
-    },
-    "5": {
-      "height": 4234,
-      "width": 3175
-    },
-    "10": {
-      "height": 4435,
-      "width": 3326
-    }
-  }
+  "single_bit_flip": "rechazado"
 }

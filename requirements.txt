@@ -1,5 +1,6 @@
 numpy
 pillow
+cryptography
 
 # Dependencias adicionales solo para analisis/analysis.py (regenerar
 # figuras y metricas de los articulos):

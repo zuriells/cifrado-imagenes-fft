@@ -1,0 +1,909 @@
+{
+  "aggregate": {
+    "n_images": 18,
+    "exact_recovery_all": true,
+    "integrity_all_rejected_all": true,
+    "entropy_original": {
+      "mean": 7.083723482651863,
+      "std": 0.40823644702457956,
+      "min": 6.400673544035667,
+      "max": 7.670242438822384
+    },
+    "entropy_encrypted": {
+      "mean": 7.999024638369085,
+      "std": 0.0008665296236175758,
+      "min": 7.996964497900549,
+      "max": 7.999832205295305
+    },
+    "abs_corr_original": {
+      "mean": 0.880366475848773,
+      "std": 0.09561504080969324,
+      "min": 0.6746555330322219,
+      "max": 0.9747413257947116
+    },
+    "abs_corr_encrypted": {
+      "mean": 0.006469425344243054,
+      "std": 0.002477657758604397,
+      "min": 0.0034100468595582977,
+      "max": 0.011674255473027596
+    },
+    "abs_corr_plain_cipher": {
+      "mean": 0.0012302554192325469,
+      "std": 0.0012267376471598343,
+      "min": 2.2376895714330456e-05,
+      "max": 0.0046694584450524155
+    },
+    "npcr": {
+      "mean": 99.61050351460774,
+      "std": 0.003497191128556409,
+      "min": 99.603271484375,
+      "max": 99.61655934651694
+    },
+    "uaci": {
+      "mean": 33.46581783170014,
+      "std": 0.017302962434376238,
+      "min": 33.434728485306884,
+      "max": 33.495677873200066
+    },
+    "key_sensitivity": {
+      "mean": 99.60866151032624,
+      "std": 0.004173299345651474,
+      "min": 99.59983825683594,
+      "max": 99.61573282877603
+    },
+    "aes_entropy_encrypted": {
+      "mean": 7.999028627329319,
+      "std": 0.0008619702467769879,
+      "min": 7.997041149168033,
+      "max": 7.999840259424626
+    },
+    "aes_abs_corr_encrypted": {
+      "mean": 0.007256683297700146,
+      "std": 0.0026495865979086265,
+      "min": 0.003703094948193981,
+      "max": 0.01242277856557174
+    },
+    "throughput_enc_MBps": {
+      "mean": 8.636015190436488,
+      "std": 1.4913956111948892,
+      "min": 5.123146464861211,
+      "max": 9.502621417238224
+    },
+    "throughput_dec_MBps": {
+      "mean": 8.090530024723623,
+      "std": 1.2847869404566994,
+      "min": 5.215429456940822,
+      "max": 8.915338060115747
+    }
+  },
+  "per_image": [
+    {
+      "image": "4.1.04.tiff",
+      "height": 256,
+      "width": 256,
+      "megapixels": 0.066,
+      "exact_recovery": true,
+      "entropy_original": 7.1025853497658575,
+      "entropy_encrypted": 7.997154074969994,
+      "corr_original": {
+        "H": 0.9624831842054021,
+        "V": 0.9815955362770311,
+        "D": 0.9437564730935556
+      },
+      "corr_encrypted": {
+        "H": 0.00419956472528234,
+        "V": -0.001043726457171065,
+        "D": -0.004986849396221489
+      },
+      "corr_plain_cipher": 0.003488515264399928,
+      "npcr": 99.609375,
+      "uaci": 33.46114314459507,
+      "key_sensitivity": 99.60225423177084,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.03837641600694042,
+      "t_decrypt_s": 0.03664020799624268,
+      "throughput_enc_MBps": 5.123146464861211,
+      "throughput_dec_MBps": 5.365908403690324,
+      "aes_entropy_encrypted": 7.997138181473418,
+      "aes_corr_encrypted": {
+        "H": -0.001152338231576168,
+        "V": -0.008205981189892813,
+        "D": -0.016648322203706708
+      }
+    },
+    {
+      "image": "4.1.05.tiff",
+      "height": 256,
+      "width": 256,
+      "megapixels": 0.066,
+      "exact_recovery": true,
+      "entropy_original": 6.400673544035667,
+      "entropy_encrypted": 7.997308496660313,
+      "corr_original": {
+        "H": 0.9776403698659649,
+        "V": 0.9560408267734241,
+        "D": 0.9315874883425557
+      },
+      "corr_encrypted": {
+        "H": -0.011969406847245366,
+        "V": 5.117311134555588e-05,
+        "D": -0.0036765690480988888
+      },
+      "corr_plain_cipher": 0.001922863861227156,
+      "npcr": 99.61013793945312,
+      "uaci": 33.49494983947355,
+      "key_sensitivity": 99.61039225260416,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.0363570420013275,
+      "t_decrypt_s": 0.03665675000229385,
+      "throughput_enc_MBps": 5.4077006592786425,
+      "throughput_dec_MBps": 5.363486942723973,
+      "aes_entropy_encrypted": 7.997284825461532,
+      "aes_corr_encrypted": {
+        "H": -0.0032402842300452324,
+        "V": 0.0042276887183582985,
+        "D": 0.00556957301450883
+      }
+    },
+    {
+      "image": "4.2.03.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.644440200309146,
+      "entropy_encrypted": 7.999327095499853,
+      "corr_original": {
+        "H": 0.896221192724948,
+        "V": 0.8304533526791339,
+        "D": 0.8077211453116067
+      },
+      "corr_encrypted": {
+        "H": 0.004671178474855347,
+        "V": 0.015411130017222996,
+        "D": 0.010211993470166795
+      },
+      "corr_plain_cipher": 0.002375588567494271,
+      "npcr": 99.61655934651694,
+      "uaci": 33.47578883950228,
+      "key_sensitivity": 99.60543314615884,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08519362499646377,
+      "t_decrypt_s": 0.08821112499572337,
+      "throughput_enc_MBps": 9.231113243891704,
+      "throughput_dec_MBps": 8.915338060115747,
+      "aes_entropy_encrypted": 7.999302382347949,
+      "aes_corr_encrypted": {
+        "H": -0.009117616080892066,
+        "V": 0.01171076951535407,
+        "D": -0.015693479742140432
+      }
+    },
+    {
+      "image": "4.2.05.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 6.576839432032576,
+      "entropy_encrypted": 7.99928947895429,
+      "corr_original": {
+        "H": 0.9658423491981045,
+        "V": 0.9583381979710013,
+        "D": 0.9169071808214598
+      },
+      "corr_encrypted": {
+        "H": -0.015060938608663525,
+        "V": -0.008358831426639358,
+        "D": -0.0116029963837799
+      },
+      "corr_plain_cipher": 0.0004625329651494506,
+      "npcr": 99.61287180582681,
+      "uaci": 33.4563862420375,
+      "key_sensitivity": 99.60562388102213,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08509445800154936,
+      "t_decrypt_s": 0.0882431249920046,
+      "throughput_enc_MBps": 9.24187095692743,
+      "throughput_dec_MBps": 8.912105051484248,
+      "aes_entropy_encrypted": 7.999218839124327,
+      "aes_corr_encrypted": {
+        "H": -0.00957049892545985,
+        "V": -0.007144530616332192,
+        "D": -0.006915171532382895
+      }
+    },
+    {
+      "image": "4.2.06.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.389627743578928,
+      "entropy_encrypted": 7.999303083605483,
+      "corr_original": {
+        "H": 0.9667285865024583,
+        "V": 0.9633023783964848,
+        "D": 0.9468721932198191
+      },
+      "corr_encrypted": {
+        "H": 0.00795699811242439,
+        "V": -0.006385255190472818,
+        "D": -0.00011241315247168214
+      },
+      "corr_plain_cipher": 2.2376895714330456e-05,
+      "npcr": 99.6148427327474,
+      "uaci": 33.48016028310738,
+      "key_sensitivity": 99.60600535074869,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08362841700727586,
+      "t_decrypt_s": 0.08902062500419561,
+      "throughput_enc_MBps": 9.403884805467246,
+      "throughput_dec_MBps": 8.834267339315298,
+      "aes_entropy_encrypted": 7.999311753173598,
+      "aes_corr_encrypted": {
+        "H": 0.008771460162928962,
+        "V": -0.0008457706305958105,
+        "D": -0.012001330977382036
+      }
+    },
+    {
+      "image": "4.2.07.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.297795295145176,
+      "entropy_encrypted": 7.999227202347323,
+      "corr_original": {
+        "H": 0.9704283683106248,
+        "V": 0.9730695372007506,
+        "D": 0.9577467638369549
+      },
+      "corr_encrypted": {
+        "H": -0.0026772425492860032,
+        "V": 0.010902514535657984,
+        "D": 0.0015306801495415603
+      },
+      "corr_plain_cipher": 0.0010982244221890267,
+      "npcr": 99.60562388102213,
+      "uaci": 33.47430210487515,
+      "key_sensitivity": 99.61573282877603,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08473220899759326,
+      "t_decrypt_s": 0.0892613329924643,
+      "throughput_enc_MBps": 9.28138200695721,
+      "throughput_dec_MBps": 8.81044427228521,
+      "aes_entropy_encrypted": 7.999304319495614,
+      "aes_corr_encrypted": {
+        "H": -0.00496691729543904,
+        "V": 0.013538691646267973,
+        "D": 0.0035799153311839326
+      }
+    },
+    {
+      "image": "5.1.10.tiff",
+      "height": 256,
+      "width": 256,
+      "megapixels": 0.066,
+      "exact_recovery": true,
+      "entropy_original": 7.311807223259962,
+      "entropy_encrypted": 7.996964497900549,
+      "corr_original": {
+        "H": 0.9020495207146352,
+        "V": 0.8646066569292575,
+        "D": 0.8183303443938449
+      },
+      "corr_encrypted": {
+        "H": -0.0005805205415125442,
+        "V": 0.012124468098286824,
+        "D": 0.0052335037387869696
+      },
+      "corr_plain_cipher": -0.0046694584450524155,
+      "npcr": 99.603271484375,
+      "uaci": 33.495677873200066,
+      "key_sensitivity": 99.60861206054688,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.03639074999955483,
+      "t_decrypt_s": 0.03769737499533221,
+      "throughput_enc_MBps": 5.402691618128374,
+      "throughput_dec_MBps": 5.215429456940822,
+      "aes_entropy_encrypted": 7.997041149168033,
+      "aes_corr_encrypted": {
+        "H": -0.008377085923942061,
+        "V": -0.012465088282958428,
+        "D": -0.007704564002804973
+      }
+    },
+    {
+      "image": "5.2.08.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.201007959852423,
+      "entropy_encrypted": 7.999279055380737,
+      "corr_original": {
+        "H": 0.9354227621583152,
+        "V": 0.8831127810168681,
+        "D": 0.8548498768935082
+      },
+      "corr_encrypted": {
+        "H": -0.004091002326669111,
+        "V": 0.007406341859761706,
+        "D": -0.007009758960617209
+      },
+      "corr_plain_cipher": 0.0017065043437917804,
+      "npcr": 99.60880279541016,
+      "uaci": 33.461296729792174,
+      "key_sensitivity": 99.61566925048828,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08404770800552797,
+      "t_decrypt_s": 0.08840799999597948,
+      "throughput_enc_MBps": 9.356971399485099,
+      "throughput_dec_MBps": 8.895484571936526,
+      "aes_entropy_encrypted": 7.999299272064071,
+      "aes_corr_encrypted": {
+        "H": 0.0025489328092867655,
+        "V": 0.0043236362493307605,
+        "D": -0.004236715785964416
+      }
+    },
+    {
+      "image": "5.3.01.tiff",
+      "height": 1024,
+      "width": 1024,
+      "megapixels": 1.049,
+      "exact_recovery": true,
+      "entropy_original": 7.523736852074143,
+      "entropy_encrypted": 7.999827000912666,
+      "corr_original": {
+        "H": 0.9766827181426634,
+        "V": 0.9804239123974847,
+        "D": 0.9671173468439869
+      },
+      "corr_encrypted": {
+        "H": -0.00043210574489795155,
+        "V": 0.006511746820111718,
+        "D": -0.007589539130024657
+      },
+      "corr_plain_cipher": 0.00028978662339891245,
+      "npcr": 99.61191813151041,
+      "uaci": 33.48321222791484,
+      "key_sensitivity": 99.60996309916177,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.33513833399047144,
+      "t_decrypt_s": 0.38863545800268184,
+      "throughput_enc_MBps": 9.386356859103556,
+      "throughput_dec_MBps": 8.09428973919897,
+      "aes_entropy_encrypted": 7.9998306048603105,
+      "aes_corr_encrypted": {
+        "H": 0.006889224913783074,
+        "V": 0.011940915368605795,
+        "D": 0.0027224868659727953
+      }
+    },
+    {
+      "image": "7.1.05.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 6.563195555927604,
+      "entropy_encrypted": 7.99928097258796,
+      "corr_original": {
+        "H": 0.9440167366392767,
+        "V": 0.9129648103943052,
+        "D": 0.8930034208042158
+      },
+      "corr_encrypted": {
+        "H": -0.0011189144204698665,
+        "V": -0.016709437221472584,
+        "D": 0.009147521336694152
+      },
+      "corr_plain_cipher": 0.0009707540678956295,
+      "npcr": 99.61274464925131,
+      "uaci": 33.46023709166283,
+      "key_sensitivity": 99.60956573486328,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08419154200237244,
+      "t_decrypt_s": 0.08923904200491961,
+      "throughput_enc_MBps": 9.340985819903846,
+      "throughput_dec_MBps": 8.812645029925863,
+      "aes_entropy_encrypted": 7.999318321761126,
+      "aes_corr_encrypted": {
+        "H": 0.004904969194227271,
+        "V": 0.005462444454769071,
+        "D": 0.007596667544753612
+      }
+    },
+    {
+      "image": "boat.512.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.191370218069242,
+      "entropy_encrypted": 7.999298260588792,
+      "corr_original": {
+        "H": 0.9418148498416482,
+        "V": 0.9705386788956384,
+        "D": 0.9193613840476504
+      },
+      "corr_encrypted": {
+        "H": 0.0034078730834057637,
+        "V": 0.007636752272454493,
+        "D": 0.0013318905408718036
+      },
+      "corr_plain_cipher": 0.0003696054839948684,
+      "npcr": 99.60772196451822,
+      "uaci": 33.483133752361624,
+      "key_sensitivity": 99.6140162150065,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08616141599486582,
+      "t_decrypt_s": 0.08954875000927132,
+      "throughput_enc_MBps": 9.127426597154136,
+      "throughput_dec_MBps": 8.782166137646565,
+      "aes_entropy_encrypted": 7.999269192296587,
+      "aes_corr_encrypted": {
+        "H": 0.002505755654858603,
+        "V": -0.0038823513756288835,
+        "D": 0.014343125733883582
+      }
+    },
+    {
+      "image": "house.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.360163342632073,
+      "entropy_encrypted": 7.999279194160484,
+      "corr_original": {
+        "H": 0.9551823453450053,
+        "V": 0.9567427655966236,
+        "D": 0.9175216126962628
+      },
+      "corr_encrypted": {
+        "H": -0.001897926011725264,
+        "V": -0.010482617104158662,
+        "D": -0.001107207462683727
+      },
+      "corr_plain_cipher": -0.0011025707646105207,
+      "npcr": 99.61522420247397,
+      "uaci": 33.4352722666622,
+      "key_sensitivity": 99.59983825683594,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08561920801002998,
+      "t_decrypt_s": 0.08898291699006222,
+      "throughput_enc_MBps": 9.185228621921759,
+      "throughput_dec_MBps": 8.838011009324747,
+      "aes_entropy_encrypted": 7.999298170653264,
+      "aes_corr_encrypted": {
+        "H": 0.010327148168049345,
+        "V": -0.00842991270119907,
+        "D": -0.0165332977003403
+      }
+    },
+    {
+      "image": "2.1.01.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.1532890070725825,
+      "entropy_encrypted": 7.999353433797037,
+      "corr_original": {
+        "H": 0.8833494450058006,
+        "V": 0.8669037689443043,
+        "D": 0.8589966842718834
+      },
+      "corr_encrypted": {
+        "H": -0.0036140538560835624,
+        "V": -0.007493021716970784,
+        "D": -0.009244065239519613
+      },
+      "corr_plain_cipher": 0.0005063239631326032,
+      "npcr": 99.6084213256836,
+      "uaci": 33.45978057462406,
+      "key_sensitivity": 99.61325327555338,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08441891700203996,
+      "t_decrypt_s": 0.09008258300309535,
+      "throughput_enc_MBps": 9.315826688240932,
+      "throughput_dec_MBps": 8.730122669472935,
+      "aes_entropy_encrypted": 7.99927548087532,
+      "aes_corr_encrypted": {
+        "H": -0.005627552533553533,
+        "V": -0.009990896489339965,
+        "D": -0.0018614800856173435
+      }
+    },
+    {
+      "image": "2.2.01.tiff",
+      "height": 1024,
+      "width": 1024,
+      "megapixels": 1.049,
+      "exact_recovery": true,
+      "entropy_original": 7.350795620869209,
+      "entropy_encrypted": 7.999832205295305,
+      "corr_original": {
+        "H": 0.916467417408971,
+        "V": 0.9149699677968606,
+        "D": 0.8945475934338502
+      },
+      "corr_encrypted": {
+        "H": -0.008858648221922108,
+        "V": -0.0108658108624892,
+        "D": 0.0013867644252791428
+      },
+      "corr_plain_cipher": 0.00011605948082473741,
+      "npcr": 99.61056709289551,
+      "uaci": 33.455694423002356,
+      "key_sensitivity": 99.60912068684897,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.3310379169997759,
+      "t_decrypt_s": 0.40197841699409764,
+      "throughput_enc_MBps": 9.502621417238224,
+      "throughput_dec_MBps": 7.825614179793612,
+      "aes_entropy_encrypted": 7.999840259424626,
+      "aes_corr_encrypted": {
+        "H": 0.0035794085141329407,
+        "V": -0.032691922211339666,
+        "D": -0.0009970049712426116
+      }
+    },
+    {
+      "image": "3.2.25.tiff",
+      "height": 1024,
+      "width": 1024,
+      "megapixels": 1.049,
+      "exact_recovery": true,
+      "entropy_original": 6.732650403552093,
+      "entropy_encrypted": 7.999830496940699,
+      "corr_original": {
+        "H": 0.8616369813870676,
+        "V": 0.8572882168084548,
+        "D": 0.7885068211488887
+      },
+      "corr_encrypted": {
+        "H": 0.006800623226223094,
+        "V": 0.00020463476240326997,
+        "D": -0.0036738457279223325
+      },
+      "corr_plain_cipher": 0.00021622263442642816,
+      "npcr": 99.61260159810385,
+      "uaci": 33.4666725856806,
+      "key_sensitivity": 99.6096134185791,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.3324438330018893,
+      "t_decrypt_s": 0.39813487500941847,
+      "throughput_enc_MBps": 9.46243451591452,
+      "throughput_dec_MBps": 7.901161635050392,
+      "aes_entropy_encrypted": 7.999826177605063,
+      "aes_corr_encrypted": {
+        "H": 0.004402156890021865,
+        "V": 0.0024083140856744397,
+        "D": 0.006130587499701824
+      }
+    },
+    {
+      "image": "1.1.01.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 7.670242438822384,
+      "entropy_encrypted": 7.999326090483039,
+      "corr_original": {
+        "H": 0.7335142394233068,
+        "V": 0.8103788785457781,
+        "D": 0.5913276555351807
+      },
+      "corr_encrypted": {
+        "H": -0.0024621732577292635,
+        "V": -0.00821148104805306,
+        "D": -0.0038490233988616126
+      },
+      "corr_plain_cipher": -0.0018455640147579827,
+      "npcr": 99.60619608561197,
+      "uaci": 33.44459010105507,
+      "key_sensitivity": 99.60575103759766,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08454641600837931,
+      "t_decrypt_s": 0.08842499999445863,
+      "throughput_enc_MBps": 9.301778089825328,
+      "throughput_dec_MBps": 8.893774385629445,
+      "aes_entropy_encrypted": 7.999345060795826,
+      "aes_corr_encrypted": {
+        "H": -0.006587892230104957,
+        "V": -0.004561810140535687,
+        "D": -0.005256847584766092
+      }
+    },
+    {
+      "image": "1.2.04.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 6.62142123869805,
+      "entropy_encrypted": 7.999302536790824,
+      "corr_original": {
+        "H": 0.7136517847870306,
+        "V": 0.7677285511116384,
+        "D": 0.5425862631979966
+      },
+      "corr_encrypted": {
+        "H": 0.008719114841421882,
+        "V": 0.022872238908498613,
+        "D": -0.001541795510495217
+      },
+      "corr_plain_cipher": -0.00026584515116639127,
+      "npcr": 99.61369832356772,
+      "uaci": 33.434728485306884,
+      "key_sensitivity": 99.60835774739584,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08466437499737367,
+      "t_decrypt_s": 0.09001958300359547,
+      "throughput_enc_MBps": 9.28881834920999,
+      "throughput_dec_MBps": 8.736232425877702,
+      "aes_entropy_encrypted": 7.9992770871443915,
+      "aes_corr_encrypted": {
+        "H": -0.0021989655646958415,
+        "V": -0.007606174360347163,
+        "D": -0.006124354962422872
+      }
+    },
+    {
+      "image": "1.5.04.tiff",
+      "height": 512,
+      "width": 512,
+      "megapixels": 0.262,
+      "exact_recovery": true,
+      "entropy_original": 6.415381262036436,
+      "entropy_encrypted": 7.999260313768189,
+      "corr_original": {
+        "H": 0.7643861925160312,
+        "V": 0.7133758609001827,
+        "D": 0.5596957251280502
+      },
+      "corr_encrypted": {
+        "H": -0.00733317727675046,
+        "V": -0.0013753802688828195,
+        "D": 0.01621452770846681
+      },
+      "corr_plain_cipher": -0.0007158005969594114,
+      "npcr": 99.60848490397134,
+      "uaci": 33.46169440574896,
+      "key_sensitivity": 99.60670471191406,
+      "integrity_all_rejected": true,
+      "integrity_detail": {
+        "wrong_password": true,
+        "noise_low": true,
+        "noise_mid": true,
+        "noise_high": true,
+        "resize_down_1": true,
+        "resize_up_1": true,
+        "resize_down_5": true,
+        "resize_up_5": true,
+        "resize_down_10": true,
+        "resize_up_10": true
+      },
+      "t_encrypt_s": 0.08653487500851043,
+      "t_decrypt_s": 0.09036270900105592,
+      "throughput_enc_MBps": 9.08803531434762,
+      "throughput_dec_MBps": 8.703059134612822,
+      "aes_entropy_encrypted": 7.99933421420269,
+      "aes_corr_encrypted": {
+        "H": -0.0021093690104453233,
+        "V": -0.009442914652552366,
+        "D": -0.0021885835145073
+      }
+    }
+  ]
+}

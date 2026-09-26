@@ -1,0 +1,677 @@
+\documentclass{llncs}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{url}
+
+\renewcommand{\andname}{y}
+\renewcommand{\lastandname}{\unskip\ y}
+
+\begin{document}
+
+\title{Cifrado Autenticado de Im\'agenes con Blanqueo por Convoluci\'on en el Dominio de Frecuencia y Clave Derivada de Contrase\~na}
+
+\author{M.C. Zuriel L\'opez Sosa \and Dra. B\'arbara Emma S\'anchez Rinza \and
+Dr. Carlos Ignacio Robledo S\'anchez}
+\institute{Benemerita Universidad Autonoma de Puebla\\
+\email{zuriel.lopezs@correo.buap.mx, brinza@fcfm.buap.mx, crobledo@fcfm.buap.mx}}
+
+\maketitle
+
+\begin{center}
+C\'odigo fuente disponible en: \url{https://github.com/zuriells/cifrado-imagenes-fft}
+\end{center}
+
+\begin{abstract}
+El cifrado de im\'agenes es fundamental para la comunicaci\'on digital
+segura y la protecci\'on de datos visuales. Este trabajo presenta un
+m\'etodo que combina una transformaci\'on de \emph{blanqueo} en el dominio
+de la frecuencia con \textbf{cifrado autenticado}. La transformaci\'on de
+blanqueo se apoya en la propiedad de convoluci\'on de la Transformada de
+Fourier (FT): la imagen original y una clave derivada de una contrase\~na
+se transforman al dominio de la frecuencia y se multiplican elemento a
+elemento, produciendo una representaci\'on decorrelacionada, sin parecido
+visual al original. Puesto que dicha convoluci\'on es una operaci\'on
+\emph{lineal} y, por s\'i sola, no constituye un cifrado seguro, la
+representaci\'on blanqueada se somete a una etapa de
+\textbf{confusi\'on-difusi\'on} (permutaci\'on dependiente de la clave y
+difusi\'on no lineal por rondas), que rompe dicha linealidad y dota al
+cifrador de imagen de resistencia a ataques de texto plano. Finalmente, la
+confidencialidad y la integridad se delegan en \textbf{ChaCha20-Poly1305}
+(RFC 8439): el resultado se sella con una clave derivada de la contrase\~na
+mediante PBKDF2-HMAC-SHA256 y SHAKE-256. El resultado se
+almacena en un PNG de 16 bits por canal con el \emph{nonce}, la etiqueta de
+autenticaci\'on, el \emph{salt} y los metadatos de normalizaci\'on
+embebidos, sin necesidad de un archivo de clave externo. Para evaluar el
+m\'etodo se realizaron, sobre 18 im\'agenes de distinta resoluci\'on y
+contenido de la base USC-SIPI, an\'alisis estad\'isticos (histogramas,
+entrop\'ia, correlaci\'on de p\'ixeles), una comparaci\'on con AES-256, una
+evaluaci\'on de rendimiento y pruebas de difusi\'on (NPCR, UACI y sensibilidad a la clave) y de seguridad
+ante contrase\~na incorrecta, ruido gaussiano y reescalado. Los resultados
+muestran que la imagen cifrada exhibe entrop\'ia pr\'acticamente m\'axima
+($\approx 8$ bits/p\'ixel), un histograma uniforme y valores de NPCR y UACI
+casi ideales, que el descifrado con la contrase\~na correcta recupera la
+imagen original de forma \textbf{exacta} (PSNR infinito) y que
+\textbf{cualquier}
+alteraci\'on del archivo cifrado o de la contrase\~na es detectada y
+rechazada por la etiqueta de autenticaci\'on, de modo que el esquema es no
+maleable.
+
+\keywords{Cifrado de imagenes, cifrado autenticado, ChaCha20-Poly1305,
+confusion-difusion, NPCR, UACI, Transformada de Fourier, derivacion de
+claves, PBKDF2, SHAKE-256, integridad, analisis criptografico.}
+\end{abstract}
+
+\section{Introducci\'on}
+
+En la era digital, la seguridad de la informaci\'on es una prioridad,
+especialmente en lo referente a la protecci\'on de im\'agenes, las cuales
+suelen contener datos sensibles. Las im\'agenes digitales, por su
+naturaleza visual, presentan un reto adicional para los m\'etodos de
+cifrado tradicionales centrados en el dominio espacial. Las t\'ecnicas de
+procesamiento en el dominio de la frecuencia, como las basadas en la
+Transformada de Fourier (FT), han ganado atenci\'on por su capacidad de
+decorrelacionar y ocultar eficazmente los patrones de los datos
+\cite{refregier,unnikrishnan}. Entre las alternativas existentes se
+encuentran los esquemas de codificaci\'on de fase aleatoria en el dominio
+\'optico \cite{javidi} y los esquemas basados en mapas ca\'oticos
+\cite{chaos1,chaos2}, que persiguen objetivos similares de aleatorizaci\'on
+mediante din\'amicas no lineales en el dominio espacial.
+
+Sin embargo, un aspecto frecuentemente subestimado es que la combinaci\'on
+lineal en el dominio de la frecuencia --- multiplicar la FT de la imagen
+por la de una clave --- es, en s\'i misma, un cifrado \emph{lineal} y por
+tanto inseguro: conocido un solo par (imagen, imagen cifrada) un atacante
+puede despejar la clave en el dominio de la frecuencia,
+$\mathcal{F}(g) = \mathcal{F}(f*g)/\mathcal{F}(f)$, y descifrar cualquier
+otra imagen protegida con la misma clave. Esta es precisamente la debilidad
+que rompe a los esquemas \'opticos lineales de doble m\'ascara de fase
+aleatoria frente a ataques de texto plano conocido y elegido
+\cite{peng,frauel}. Por ello, un esquema que descanse su confidencialidad
+\'unicamente en esta operaci\'on no puede satisfacer las nociones formales
+de seguridad, que exigen que un atacante sin la clave no pueda distinguir
+la salida del cifrado de ruido aleatorio ni alterarla sin ser detectado
+\cite{bellare,aead}.
+
+Este trabajo adopta un dise\~no en capas que resuelve esa limitaci\'on.
+Primero, la convoluci\'on en el dominio de la frecuencia se conserva como una
+\textbf{transformaci\'on de blanqueo reversible} --- \'util para
+decorrelacionar la imagen y analizar sus propiedades estad\'isticas. Segundo,
+una etapa de \textbf{confusi\'on-difusi\'on}, en la l\'inea de la arquitectura
+de Fridrich \cite{fridrich} (permutaci\'on de posiciones y difusi\'on no
+lineal por rondas), rompe la linealidad del blanqueo y dota al cifrador de
+imagen de difusi\'on completa y resistencia a ataques de texto plano
+conocido/elegido, lo que se verifica con valores de NPCR y UACI casi ideales.
+Tercero, la confidencialidad y la integridad se delegan por completo en un
+\textbf{cifrado autenticado} est\'andar, ChaCha20-Poly1305 \cite{rfc8439}.
+La clave se deriva de una \textbf{contrase\~na} mediante funciones
+criptogr\'aficas est\'andar (siguiendo el principio de Kerckhoffs
+\cite{kerckhoffs}), de manera que \'unicamente se necesitan el archivo
+cifrado y la contrase\~na para recuperar la imagen original.
+
+El objetivo de este art\'iculo es presentar y evaluar dicho m\'etodo,
+examinando su efectividad y seguridad. La evaluaci\'on se realiza mediante
+pruebas estad\'isticas (comparaci\'on de histogramas, entrop\'ia y PSNR) y
+pruebas de integridad ante manipulaciones del archivo cifrado.
+
+La estructura de este art\'iculo es la siguiente: la Secci\'on 2 describe el
+algoritmo propuesto, detallando la transformaci\'on de blanqueo, la
+derivaci\'on de la clave y los procesos de cifrado y descifrado. La
+Secci\'on 3 presenta las pruebas realizadas y el an\'alisis de resultados.
+Finalmente, la Secci\'on 4 concluye con una discusi\'on de los hallazgos.
+
+\section{Metodolog\'ia}
+
+El m\'etodo consta de tres capas claramente separadas: una
+\textbf{transformaci\'on de blanqueo} en el dominio de la frecuencia
+(reversible, pero que \emph{no} aporta seguridad por s\'i misma), una etapa
+de \textbf{confusi\'on-difusi\'on} (que rompe la linealidad y difunde
+cualquier cambio a todo el arreglo) y una capa de \textbf{cifrado
+autenticado} (que aporta la confidencialidad y la integridad con respaldo
+est\'andar). Esta separaci\'on es deliberada: as\'i las garant\'ias de
+seguridad no dependen de la operaci\'on lineal, sino de una etapa no lineal
+con difusi\'on completa y de una primitiva criptogr\'afica estandarizada y
+ampliamente analizada.
+
+\subsection{Transformaci\'on de blanqueo por convoluci\'on}
+
+La transformaci\'on de blanqueo se basa en la \textbf{propiedad de
+convoluci\'on de la Transformada de Fourier}, que establece que la
+transformada de Fourier de la convoluci\'on de dos funciones es igual al
+producto de sus respectivas transformadas:
+\[
+\mathcal{F}(f * g) = \mathcal{F}(f) \cdot \mathcal{F}(g)
+\]
+Aislando el t\'ermino de convoluci\'on y aplicando la Transformada Inversa
+de Fourier ($\mathcal{F}^{-1}$) en ambos lados se obtiene:
+\[
+f * g = \mathcal{F}^{-1}\left(\mathcal{F}(f) \cdot \mathcal{F}(g)\right)
+\]
+Esto implica que la convoluci\'on en el dominio espacial puede calcularse
+indirectamente mediante multiplicaci\'on en el dominio de la frecuencia,
+seguida de la Transformada Inversa. En la pr\'actica, ambas transformadas se
+calculan mediante el algoritmo de la Transformada R\'apida de Fourier (FFT)
+\cite{cooley}, que reduce la complejidad del c\'alculo de $O(N^2)$ a
+$O(N\log N)$.
+
+A lo largo de este art\'iculo, $f$ denota la \textbf{imagen original} y $g$
+denota la \textbf{imagen-clave}. La representaci\'on blanqueada es la
+convoluci\'on $f * g$, calculada en el dominio de la frecuencia como se
+describi\'o arriba. Para invertir el blanqueo basta despejar $f$ dividiendo
+en el dominio de la frecuencia por $\mathcal{F}(g)$ en lugar de multiplicar:
+\[
+f = \mathcal{F}^{-1}\left(\frac{\mathcal{F}(f * g)}{\mathcal{F}(g)}\right)
+\]
+Dado que las im\'agenes utilizadas son RGB, todas las operaciones se
+realizan de forma independiente en cada uno de los tres canales de color
+(Rojo, Verde y Azul).
+
+Debe subrayarse que esta transformaci\'on es \emph{lineal} y, por tanto,
+\textbf{no} se emplea como mecanismo de confidencialidad: cumple \'unicamente
+el papel de decorrelacionar la imagen antes de cifrarla. La seguridad la
+aportan la etapa de confusi\'on-difusi\'on (Secci\'on~2.3) y el cifrado
+autenticado (Secci\'on~2.4).
+
+\subsection{Derivaci\'on de la clave a partir de una contrase\~na}
+
+En lugar de requerir un archivo de clave externo, todo el material
+criptogr\'afico se genera a partir de una contrase\~na. Este dise\~no sigue
+el principio de Kerckhoffs \cite{kerckhoffs}: la seguridad reside
+\'unicamente en el secreto de la contrase\~na y no en el del algoritmo. La
+derivaci\'on emplea funciones de derivaci\'on de claves basadas en
+contrase\~nas \cite{nist800132,scrypt}:
+
+\begin{enumerate}
+  \item Se genera un \emph{salt} aleatorio de 16 bytes y un \emph{nonce}
+    aleatorio de 12 bytes en el momento del cifrado.
+  \item La contrase\~na y el \emph{salt} se procesan con
+    \textbf{PBKDF2-HMAC-SHA256} \cite{pbkdf2} usando 310{,}000 iteraciones,
+    obteniendo un \textbf{secreto maestro} de 32 bytes. Este secreto es la
+    clave de ChaCha20-Poly1305.
+  \item A partir del secreto maestro se genera la imagen-clave $g$ del
+    tama\~no exacto de la imagen: \textbf{SHAKE-256} (funci\'on de salida
+    extensible de la familia SHA-3 \cite{sha3}), aplicada al secreto con un
+    separador de dominio, se expande hasta
+    $\text{alto}\times\text{ancho}\times 3$ bytes. El separador evita
+    reutilizar el secreto maestro tal cual como semilla del blanqueo.
+\end{enumerate}
+
+\textbf{Espacio de claves.} El secreto maestro tiene 256 bits, por lo que el
+espacio de claves derivadas es de $2^{256}$, muy por encima del umbral de
+$2^{128}$ que se considera resistente a fuerza bruta. El \emph{salt} de 128
+bits garantiza que la misma contrase\~na produzca claves distintas en cada
+cifrado, y el \emph{nonce} de 96 bits asegura la unicidad requerida por
+ChaCha20-Poly1305. La resistencia frente a la contrase\~na en s\'i queda
+determinada por su entrop\'ia y reforzada por las 310\,000 iteraciones de
+PBKDF2, que encarecen cada intento de adivinaci\'on.
+
+\subsection{Confusi\'on-difusi\'on}
+
+Para que el m\'etodo posea robustez propia como cifrador de imagen y no
+descanse su seguridad \'unicamente en el sobre autenticado, la
+representaci\'on blanqueada se somete a una etapa de confusi\'on-difusi\'on
+en la l\'inea de la arquitectura cl\'asica de Fridrich \cite{fridrich}. Se
+aplican $R=3$ rondas; en cada ronda, sobre el arreglo de bytes:
+
+\begin{enumerate}
+  \item \textbf{Difusi\'on no lineal}: se suma m\'odulo 256 un flujo
+    pseudoaleatorio (\emph{keystream}) y se aplica un encadenamiento XOR
+    acumulado, de modo que cada byte de salida depende de todos los
+    anteriores. La combinaci\'on de suma modular y XOR introduce no
+    linealidad y un fuerte efecto avalancha.
+  \item \textbf{Confusi\'on}: se permutan las posiciones de los bytes
+    mediante una permutaci\'on dependiente de la clave.
+\end{enumerate}
+
+El \emph{keystream}, la permutaci\'on y el vector de inicializaci\'on de cada
+ronda se derivan de forma reproducible con SHAKE-256 a partir de
+$(\text{secreto}, \text{nonce}, \text{ronda})$, de modo que el descifrado
+regenera exactamente el mismo material y revierte las rondas en orden
+inverso. Al mezclarse suma modular, XOR y permutaci\'on, la transformaci\'on
+global deja de ser lineal: el ataque de texto plano conocido
+$\mathcal{F}(g)=\mathcal{F}(f*g)/\mathcal{F}(f)$ ya no es aplicable. La
+eficacia de esta etapa se cuantifica en la Secci\'on~3.3 mediante NPCR, UACI
+y sensibilidad a la clave.
+
+\subsection{Proceso de cifrado}
+
+\begin{enumerate}
+  \item \textbf{Entradas}: la imagen original $f$ y una contrase\~na.
+  \item \textbf{Derivaci\'on}: se obtienen el secreto maestro y la
+    imagen-clave $g$ como en la Secci\'on~2.2.
+  \item \textbf{Blanqueo}: se calcula $f*g$ por canal en el dominio de la
+    frecuencia (Secci\'on~2.1). Como el resultado de la convoluci\'on tiene
+    un rango de valores mucho mayor que el de una imagen convencional, se
+    aplica normalizaci\'on Min-Max por canal a un rango de 16 bits
+    ($[0,65535]$); el m\'inimo y m\'aximo usados por canal se conservan como
+    metadatos para poder invertir el blanqueo sin p\'erdida.
+  \item \textbf{Confusi\'on-difusi\'on}: la representaci\'on blanqueada,
+    serializada a bytes, se transforma con las $R=3$ rondas descritas en la
+    Secci\'on~2.3.
+  \item \textbf{Sellado autenticado}: el resultado se cifra con
+    \textbf{ChaCha20-Poly1305} \cite{rfc8439}, usando el secreto maestro
+    como clave y el \emph{nonce} generado. El \emph{salt}, el \emph{nonce},
+    el n\'umero de iteraciones y los rangos de normalizaci\'on se pasan como
+    \emph{datos asociados autenticados} (AAD), de modo que tambi\'en quedan
+    protegidos contra manipulaci\'on aunque viajen en claro.
+  \item \textbf{Almacenamiento}: la salida cifrada (de la misma longitud que
+    la entrada) se reinterpreta como una imagen de 16 bits por canal y se
+    guarda en un PNG. El \emph{nonce}, la etiqueta de autenticaci\'on
+    (Poly1305), el \emph{salt} y los rangos se embeben como metadatos en un
+    \emph{chunk} \texttt{tEXt} en formato JSON, de manera que el archivo
+    resultante es autocontenido. Este archivo es la \textbf{imagen cifrada}.
+\end{enumerate}
+
+\subsection{Proceso de descifrado}
+
+\begin{enumerate}
+  \item \textbf{Entradas}: la imagen cifrada y la contrase\~na.
+  \item \textbf{Lectura de metadatos}: se extraen del archivo el
+    \emph{salt}, el \emph{nonce}, la etiqueta de autenticaci\'on, el
+    n\'umero de iteraciones y los rangos min/max de cada canal.
+  \item \textbf{Re-derivaci\'on}: se repite el proceso de la Secci\'on~2.2
+    con el mismo \emph{salt}, regenerando el secreto maestro y la
+    imagen-clave $g$.
+  \item \textbf{Verificaci\'on y descifrado}: ChaCha20-Poly1305 verifica la
+    etiqueta de autenticaci\'on antes de descifrar. \textbf{Si la
+    contrase\~na es incorrecta o el archivo fue alterado, la verificaci\'on
+    falla y el proceso se aborta sin producir ninguna imagen.}
+  \item \textbf{Inversi\'on de la confusi\'on-difusi\'on}: solo cuando la
+    autenticaci\'on es v\'alida, se deshacen las $R=3$ rondas de la
+    Secci\'on~2.3 en orden inverso, recuperando la representaci\'on
+    blanqueada.
+  \item \textbf{Inversi\'on del blanqueo}: se revierte la normalizaci\'on de
+    16 bits y se recupera $f$ dividiendo en el dominio de la frecuencia:
+    \[
+    f \approx \mathcal{F}^{-1}\left(\frac{\mathcal{F}(f * g)}{\mathcal{F}(g) + \epsilon}\right)
+    \]
+    con $\epsilon = 1\times10^{-10}$ para evitar divisiones por cero.
+  \item \textbf{Redondeo y recorte}: el resultado se redondea y recorta al
+    rango v\'alido $[0,255]$ para obtener la imagen final en 8 bits.
+\end{enumerate}
+
+\section{An\'alisis y Evaluaci\'on de Desempe\~no}
+
+Esta secci\'on presenta el an\'alisis y la evaluaci\'on del m\'etodo
+propuesto. Para verificar que el comportamiento observado no depende de una
+\'unica imagen, la evaluaci\'on estad\'istica y de seguridad se realiz\'o
+sobre un subconjunto diverso de \textbf{18 im\'agenes} de la USC-SIPI Image
+Database \cite{sipi} --- de contenido variado (naturales, aer\'eas y de
+textura, en color y en escala de grises) y con resoluciones de
+$256\times256$, $512\times512$ y $1024\times1024$ --- y los resultados se
+reportan de forma agregada (media $\pm$ desviaci\'on est\'andar). Para las
+figuras ilustrativas y la evaluaci\'on de rendimiento se emplean, adem\'as,
+una fotograf\'ia de $3024\times4032$ p\'ixeles y una imagen aer\'ea de
+$2250\times2250$. La evaluaci\'on comprende: inspecci\'on visual, an\'alisis
+estad\'istico (histograma, entrop\'ia, correlaci\'on), difusi\'on (NPCR,
+UACI, sensibilidad a la clave), comparaci\'on con un cifrador est\'andar,
+pruebas de integridad y evaluaci\'on de rendimiento.
+
+\subsection{Inspecci\'on visual}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.3\textwidth]{eval_original.jpg}
+  \hfill
+  \includegraphics[width=0.3\textwidth]{eval_encrypted.jpg}
+  \hfill
+  \includegraphics[width=0.3\textwidth]{eval_correct.jpg}
+  \caption{De izquierda a derecha: imagen original $f$, imagen cifrada
+  (vista previa de 8 bits de los datos reales de 16 bits) e imagen
+  descifrada (recuperaci\'on de $f$) tras el descifrado con la contrase\~na
+  correcta.}
+\end{figure}
+\FloatBarrier
+
+La imagen cifrada no muestra ning\'un rasgo reconocible del contenido de
+$f$, mientras que la imagen descifrada es, como se cuantifica en la
+Secci\'on~3.2, id\'entica a $f$.
+
+\subsection{An\'alisis estad\'istico}
+
+\subsubsection{An\'alisis de histogramas.}
+Los histogramas de intensidad son una herramienta est\'andar para analizar
+la distribuci\'on de valores de p\'ixel de una imagen \cite{gonzalez}. Se
+calcularon los histogramas de $f$ y de la imagen cifrada para cada canal de
+color (Fig.~2). El histograma de la imagen original presenta picos
+pronunciados asociados a regiones de color uniforme (cielo, piel, ropa). El
+histograma de la imagen cifrada, en cambio, es \textbf{esencialmente
+uniforme}: la estructura de picos del original desaparece por completo. Este
+resultado es consistente con la salida de un cifrado autenticado, que es
+computacionalmente indistinguible de una secuencia aleatoria uniforme.
+(N\'otese que la representaci\'on \emph{blanqueada} intermedia, antes del
+sellado, presenta una forma gaussiana por el teorema del l\'imite central
+aplicado a la convoluci\'on; el histograma uniforme de la Fig.~2 corresponde
+a la salida final ya cifrada.)
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{hist_original.png}\\[4pt]
+  \includegraphics[width=0.9\textwidth]{hist_encrypted.png}
+  \caption{Histogramas por canal (R, G, B) de la imagen original (arriba) y
+  de la imagen cifrada (abajo).}
+\end{figure}
+\FloatBarrier
+
+\subsubsection{An\'alisis de entrop\'ia.}
+La entrop\'ia de Shannon \cite{shannon} se calcul\'o sobre la
+\emph{visualizaci\'on de 8 bits} de la imagen cifrada (el byte alto de los
+datos de 16 bits), promediando los tres canales. Sobre el conjunto de 18
+im\'agenes, la entrop\'ia media de la imagen cifrada es de
+$7.9990 \pm 0.0009$ bits/p\'ixel (rango $[7.9970, 7.9998]$), frente a
+$7.0837 \pm 0.4082$ de las originales. Este valor es pr\'acticamente igual
+al m\'aximo te\'orico de $8$ bits/p\'ixel y coincide con el que produce un
+cifrador est\'andar sobre las mismas im\'agenes (AES-256-CTR: $7.9990$;
+Secci\'on~3.4). Debe subrayarse que la entrop\'ia casi m\'axima proviene de
+que la salida es la de un cifrado autenticado (indistinguible de una
+secuencia uniforme); una simple normalizaci\'on de 8 bits del blanqueo, en
+cambio, concentra los valores en una campana y produce una entrop\'ia
+sensiblemente menor, por lo que \emph{no} debe usarse como evidencia de
+aleatoriedad.
+
+\subsubsection{Evaluaci\'on de PSNR.}
+Se calcul\'o la relaci\'on se\~nal-a-ruido de pico (PSNR) \cite{psnr} entre
+$f$ y la imagen recuperada al descifrar con la contrase\~na correcta. El
+resultado obtenido fue:
+\[
+\text{MSE} = 0.0 \qquad \text{PSNR} = \infty
+\]
+Es decir, la imagen recuperada es \textbf{id\'entica bit a bit} a la
+original. La recuperaci\'on fue exacta (MSE $=0$, PSNR infinito) en las 18
+im\'agenes del conjunto, sin excepci\'on. Esto confirma que, al usar 16 bits
+por canal con los rangos de normalizaci\'on almacenados como metadatos
+exactos, el proceso completo de cifrado y descifrado no introduce ninguna
+p\'erdida de informaci\'on.
+
+\subsubsection{Correlaci\'on de p\'ixeles adyacentes.}
+En una imagen natural los p\'ixeles vecinos est\'an fuertemente
+correlacionados; un buen cifrado debe reducir esa correlaci\'on a
+pr\'acticamente cero \cite{gonzalez}. Se midi\'o el coeficiente de
+correlaci\'on entre pares de p\'ixeles adyacentes en las direcciones
+horizontal (H), vertical (V) y diagonal (D), promediando los canales. La
+Tabla~1 muestra los valores agregados sobre las 18 im\'agenes: la
+correlaci\'on pasa de $\approx 0.88$ en las originales a $\approx 0.001$ en
+las cifradas, en las tres direcciones. Adem\'as, la correlaci\'on global
+entre la imagen original y la cifrada (plano-cifrado) es de
+$0.0012 \pm 0.0012$, es decir, la salida no conserva relaci\'on lineal
+alguna con la entrada. La Fig.~3 ilustra este efecto mediante diagramas de
+dispersi\'on de p\'ixeles adyacentes.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Coeficiente de correlaci\'on de p\'ixeles adyacentes (media
+  $\pm$ desv. est\'andar sobre 18 im\'agenes).}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Direcci\'on} & \textbf{Original} & \textbf{Cifrada} \\
+    \midrule
+    Horizontal & $0.9038 \pm 0.0817$ & $-0.0014 \pm 0.0065$ \\
+    Vertical   & $0.8979 \pm 0.0772$ & $\phantom{-}0.0007 \pm 0.0103$ \\
+    Diagonal   & $0.8395 \pm 0.1330$ & $-0.0005 \pm 0.0070$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\FloatBarrier
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{corr_scatter.png}
+  \caption{Dispersi\'on de p\'ixeles adyacentes (canal R, direcci\'on
+  horizontal) de una imagen representativa: original (izquierda) y cifrada
+  (derecha). La fuerte diagonal del original desaparece por completo tras
+  el cifrado.}
+\end{figure}
+\FloatBarrier
+
+\subsection{Difusi\'on: NPCR y UACI}
+
+Para evaluar la difusi\'on del cifrador de imagen (la etapa de blanqueo m\'as
+la confusi\'on-difusi\'on, antes del sobre autenticado) se emplearon las
+pruebas est\'andar NPCR (\emph{Number of Pixels Change Rate}) y UACI
+(\emph{Unified Average Changing Intensity}) \cite{npcr}, que miden c\'omo
+cambia la salida cifrada al modificar un solo p\'ixel de la entrada. Para
+cada imagen se cifraron dos versiones id\'enticas salvo por un \'unico
+p\'ixel, con la misma clave, y se compararon las salidas del n\'ucleo.
+Adem\'as se midi\'o la sensibilidad a la clave, cifrando cada imagen con dos
+claves que difieren en un solo bit. Los resultados agregados sobre las 18
+im\'agenes (Tabla~2) son pr\'acticamente id\'enticos a los valores ideales,
+lo que confirma una difusi\'on completa: un cambio m\'inimo en la entrada, o
+en la clave, altera casi la totalidad de la salida cifrada.
+
+\begin{table}[htbp]
+  \centering
+  \caption{M\'etricas de difusi\'on del n\'ucleo del cifrador (media
+  $\pm$ desv. est\'andar sobre 18 im\'agenes).}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{M\'etrica} & \textbf{Obtenido} & \textbf{Ideal} \\
+    \midrule
+    NPCR                    & $99.6105 \pm 0.0035$\% & $99.6094$\% \\
+    UACI                    & $33.4658 \pm 0.0173$\% & $33.4635$\% \\
+    Sensibilidad a la clave & $99.6087 \pm 0.0042$\% & $\approx 99.61$\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\FloatBarrier
+
+\subsection{Comparaci\'on con un cifrador est\'andar}
+
+Para valorar objetivamente el m\'etodo se compararon sus m\'etricas
+estad\'isticas con las de un cifrador ampliamente establecido, AES-256 en
+modo CTR \cite{aes}, aplicado a las mismas 18 im\'agenes (Tabla~4). En
+ambos casos la entrop\'ia es pr\'acticamente m\'axima y la correlaci\'on de
+p\'ixeles adyacentes es indistinguible de cero, lo que indica que la salida
+del m\'etodo propuesto es estad\'isticamente equivalente a la de un cifrador
+est\'andar. En cuanto a NPCR y UACI, el n\'ucleo propuesto alcanza valores
+junto al ideal, comparables a los reportados por esquemas de cifrado de
+im\'agenes basados en mapas ca\'oticos \cite{chaos1,chaos2}. Debe notarse
+que NPCR y UACI miden la difusi\'on respecto al \emph{texto plano}, propia
+de los cifradores de imagen, y no son aplicables a un cifrador de flujo como
+AES-CTR (cuya seguridad proviene de la aleatorizaci\'on por \emph{nonce}, no
+de la difusi\'on por p\'ixel).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Comparaci\'on de m\'etricas estad\'isticas (media sobre 18
+  im\'agenes) entre el m\'etodo propuesto y AES-256-CTR.}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{M\'etrica} & \textbf{Propuesto} & \textbf{AES-256-CTR} & \textbf{Ideal} \\
+    \midrule
+    Entrop\'ia cifrada         & $7.9990$  & $7.9990$  & $8$ \\
+    $|r|$ adyacente (media)    & $0.0065$  & $0.0073$  & $0$ \\
+    $|r|$ plano-cifrado        & $0.0012$  & ---       & $0$ \\
+    NPCR                       & $99.61$\% & n/a       & $99.61$\% \\
+    UACI                       & $33.47$\% & n/a       & $33.46$\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\FloatBarrier
+
+\subsection{Integridad y autenticaci\'on}
+
+A diferencia de un cifrado lineal puro, en el que una manipulaci\'on del
+archivo produce una imagen degradada pero a\'un potencialmente \'util para
+un atacante, un cifrado autenticado es \textbf{no maleable}: cualquier
+alteraci\'on de la contrase\~na o del archivo cifrado invalida la etiqueta
+Poly1305 y el descifrado se \textbf{rechaza}. Se evaluaron tres familias de
+manipulaciones --- incluyendo reescalado con factores sim\'etricos
+($\pm1\%$, $\pm5\%$, $\pm10\%$) --- adem\'as de un volteo de un solo bit; los
+resultados se resumen en la Tabla~3. Cabe aclarar que la incapacidad de
+descifrar una imagen manipulada \textbf{no} se interpreta aqu\'i como
+``detecci\'on de manipulaci\'on'' heur\'istica, sino que proviene de un
+mecanismo de autenticaci\'on expl\'icito (la etiqueta Poly1305), que es lo
+que legitima la afirmaci\'on de integridad.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Resultado del intento de descifrado ante distintas
+  manipulaciones del archivo cifrado o de la contrase\~na (id\'entico en las
+  18 im\'agenes del conjunto).}
+  \begin{tabular}{@{}lc@{}}
+    \toprule
+    \textbf{Ataque / manipulaci\'on} & \textbf{Resultado} \\
+    \midrule
+    Contrase\~na incorrecta                     & Rechazado \\
+    Ruido gaussiano ($\sigma \approx 32.8$)      & Rechazado \\
+    Ruido gaussiano ($\sigma \approx 163.8$)     & Rechazado \\
+    Ruido gaussiano ($\sigma \approx 327.7$)     & Rechazado \\
+    Reescalado $-1\%, -5\%, -10\%$               & Rechazado \\
+    Reescalado $+1\%, +5\%, +10\%$               & Rechazado \\
+    Volteo de un solo bit                        & Rechazado \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\FloatBarrier
+
+En todos los casos, incluida la perturbaci\'on m\'inima posible --- el
+cambio de un \'unico bit ---, ChaCha20-Poly1305 detect\'o la alteraci\'on y
+rechaz\'o el descifrado. Este comportamiento es cualitativamente superior al
+de un cifrado no autenticado: el sistema no solo protege la
+confidencialidad, sino que \textbf{garantiza la integridad y la
+autenticidad} del archivo cifrado, de modo que ninguna manipulaci\'on ---
+por peque\~na que sea --- puede pasar inadvertida ni ser aprovechada para
+obtener una reconstrucci\'on parcial de la imagen.
+
+\subsection{Evaluaci\'on de rendimiento}
+
+Se midieron los tiempos de cifrado y descifrado para im\'agenes de distinto
+tama\~no, desde $256\times256$ hasta $3024\times4032$ p\'ixeles (Tabla~5).
+El \emph{throughput} se mantiene en torno a $6$--$9$ MB/s. Conviene notar
+que la derivaci\'on de clave PBKDF2 (310\,000 iteraciones) es un costo fijo
+por operaci\'on, deliberado para dificultar la fuerza bruta sobre la
+contrase\~na; por ello domina el tiempo en las im\'agenes m\'as peque\~nas.
+El tiempo restante crece de forma aproximadamente lineal con el n\'umero de
+p\'ixeles (Fig.~4), acorde con el costo $O(N\log N)$ de la FFT y $O(N)$ de la
+confusi\'on-difusi\'on. El consumo de memoria tambi\'en escala linealmente
+con el tama\~no de la imagen; su pico (dominado por las permutaciones de la
+confusi\'on-difusi\'on) fue de aproximadamente $4.5$ GB para la imagen de
+$12$ megap\'ixeles, lo que constituye una limitaci\'on a optimizar en
+trabajo futuro (por ejemplo, procesando por bloques).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiempos de cifrado/descifrado y \emph{throughput} por tama\~no de
+  imagen.}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Tama\~no} & \textbf{MP} & \textbf{Cifrado (s)} & \textbf{Descifrado (s)} & \textbf{Throughput (MB/s)} \\
+    \midrule
+    $256\times256$   & $0.07$  & $0.05$ & $0.04$ & $4.2$--$5.3$ \\
+    $512\times512$   & $0.26$  & $0.09$ & $0.09$ & $9.0$ \\
+    $1024\times1024$ & $1.05$  & $0.33$ & $0.40$ & $7.9$--$9.5$ \\
+    $2250\times2250$ & $5.06$  & $1.92$ & $2.25$ & $6.7$--$7.9$ \\
+    $3024\times4032$ & $12.19$ & $5.41$ & $6.13$ & $6.0$--$6.8$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\FloatBarrier
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{perf_time.png}
+  \caption{Tiempos de cifrado y descifrado en funci\'on del n\'umero de
+  megap\'ixeles.}
+\end{figure}
+\FloatBarrier
+
+\section{Conclusiones}
+
+El an\'alisis demuestra que el m\'etodo propuesto transforma eficazmente el
+contenido de una imagen en una representaci\'on cifrada de apariencia
+aleatoria, con entrop\'ia pr\'acticamente m\'axima ($\approx 8$ bits/p\'ixel)
+e histograma uniforme, computacionalmente indistinguible del ruido. El punto
+central del dise\~no es reconocer que la convoluci\'on lineal en el dominio
+de la frecuencia, aunque \'util para decorrelacionar la imagen, es insegura
+por s\'i sola --- vulnerable a ataques de texto plano conocido y elegido
+\cite{peng,frauel}. Por ello se a\~nade una etapa de confusi\'on-difusi\'on
+que rompe esa linealidad y logra difusi\'on completa (NPCR $99.61\%$ y UACI
+$33.46\%$, junto a una sensibilidad a la clave del $99.61\%$), y se delegan
+la confidencialidad y la integridad en un cifrado autenticado est\'andar
+(ChaCha20-Poly1305).
+
+La evaluaci\'on sobre un conjunto de 18 im\'agenes de distinta resoluci\'on y
+contenido confirma que estos resultados no dependen de una \'unica imagen:
+entrop\'ia $7.9990 \pm 0.0009$, correlaci\'on de p\'ixeles adyacentes
+reducida de $\approx 0.88$ a $\approx 0.001$ y correlaci\'on plano-cifrado de
+$\approx 0.001$, valores estad\'isticamente equivalentes a los de un cifrador
+est\'andar (AES-256). El descifrado con la contrase\~na correcta recupera la
+imagen original de forma \textbf{exacta} (PSNR infinito) en todas ellas,
+gracias al almacenamiento de 16 bits por canal con rangos de normalizaci\'on
+precisos. Las pruebas de integridad
+muestran que \textbf{cualquier} alteraci\'on de la contrase\~na o del
+archivo cifrado --- ruido, reescalado o incluso el cambio de un solo bit ---
+es detectada y rechazada por la etiqueta de autenticaci\'on, propiedad de no
+maleabilidad especialmente valiosa para detectar y prevenir manipulaciones
+no autorizadas. En conjunto, el esquema ofrece confidencialidad, integridad
+y autenticidad con seguridad respaldada por primitivas est\'andar, eliminando
+adem\'as la necesidad de distribuir un archivo de clave externo, lo cual lo
+hace pr\'actico para la transmisi\'on segura de im\'agenes.
+
+\begin{thebibliography}{23}
+\bibitem{refregier} Refregier, P., Javidi, B.: Optical image encryption
+  based on input plane and Fourier plane random encoding. Optics Letters
+  20(7), 767--769 (1995).
+\bibitem{unnikrishnan} Unnikrishnan, G., Joseph, J., Singh, K.: Optical
+  encryption system that uses phase conjugation in a photorefractive
+  crystal. Applied Optics 37(35), 8181--8186 (1998).
+\bibitem{javidi} Javidi, B., Zhang, G., Li, J.: Experimental demonstration of
+  the random phase encoding technique for image encryption and security
+  verification. Optical Engineering 35(9), 2506--2512 (1996).
+\bibitem{chaos1} Chen, G., Mao, Y., Chui, C.K.: A symmetric image encryption
+  scheme based on 3D chaotic cat maps. Chaos, Solitons \& Fractals 21(3),
+  749--761 (2004).
+\bibitem{chaos2} Zhou, Y., Bao, L., Chen, C.L.P.: A new 1D chaotic system for
+  image encryption. Signal Processing 97, 172--182 (2014).
+\bibitem{cooley} Cooley, J.W., Tukey, J.W.: An algorithm for the machine
+  calculation of complex Fourier series. Mathematics of Computation 19(90),
+  297--301 (1965).
+\bibitem{peng} Peng, X., Zhang, P., Wei, H., Yu, B.: Known-plaintext attack
+  on optical encryption based on double random phase keys. Optics Letters
+  31(8), 1044--1046 (2006).
+\bibitem{frauel} Frauel, Y., Castro, A., Naughton, T.J., Javidi, B.:
+  Resistance of the double random phase encryption against various attacks.
+  Optics Express 15(16), 10253--10265 (2007).
+\bibitem{kerckhoffs} Kerckhoffs, A.: La cryptographie militaire. Journal des
+  sciences militaires 9, 5--38 (1883).
+\bibitem{pbkdf2} Moriarty, K., Kaliski, B., Rusch, A.: PKCS \#5: Password-Based
+  Cryptography Specification, Version 2.1. RFC 8018 (2017).
+\bibitem{nist800132} Turan, M.S., Barker, E., Burr, W., Chen, L.:
+  Recommendation for Password-Based Key Derivation, Part 1: Storage
+  Applications. NIST Special Publication 800-132 (2010).
+\bibitem{scrypt} Percival, C.: Stronger key derivation via sequential
+  memory-hard functions. In: BSDCan 2009 (2009).
+\bibitem{sha3} National Institute of Standards and Technology: SHA-3 Standard:
+  Permutation-Based Hash and Extendable-Output Functions. FIPS PUB 202 (2015).
+\bibitem{rfc8439} Nir, Y., Langley, A.: ChaCha20 and Poly1305 for IETF
+  Protocols. RFC 8439 (2018).
+\bibitem{aead} Bellare, M., Namprempre, C.: Authenticated encryption:
+  Relations among notions and analysis of the generic composition paradigm.
+  In: ASIACRYPT 2000, LNCS 1976, pp. 531--545 (2000).
+\bibitem{fridrich} Fridrich, J.: Symmetric ciphers based on two-dimensional
+  chaotic maps. International Journal of Bifurcation and Chaos 8(6),
+  1259--1284 (1998).
+\bibitem{npcr} Wu, Y., Noonan, J.P., Agaian, S.: NPCR and UACI randomness
+  tests for image encryption. Cyber Journals: Journal of Selected Areas in
+  Telecommunications, 31--38 (2011).
+\bibitem{aes} National Institute of Standards and Technology: Advanced
+  Encryption Standard (AES). FIPS PUB 197 (2001).
+\bibitem{sipi} University of Southern California, Signal and Image Processing
+  Institute: The USC-SIPI Image Database. \url{https://sipi.usc.edu/database}.
+\bibitem{shannon} Shannon, C.E.: A mathematical theory of communication. The
+  Bell System Technical Journal 27(3), 379--423 (1948).
+\bibitem{gonzalez} Gonzalez, R.C., Woods, R.E.: Digital Image Processing,
+  4th ed. Pearson (2018).
+\bibitem{psnr} Hore, A., Ziou, D.: Image quality metrics: PSNR vs. SSIM. In:
+  20th International Conference on Pattern Recognition (ICPR), pp.
+  2366--2369 (2010).
+\bibitem{bellare} Bellare, M., Desai, A., Pointcheval, D., Rogaway, P.:
+  Relations among notions of security for public-key encryption schemes. In:
+  CRYPTO 1998, LNCS 1462, pp. 26--45 (1998).
+\end{thebibliography}
+
+\end{document}
